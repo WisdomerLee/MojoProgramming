@@ -136,3 +136,24 @@ image가 만들어졌으면 visual studio code에서 docker extension을 클릭�
 
 docker 환경 내부에 프로그램을 만들어 실행할 것
 이렇게 하면 image로 설정한 개발 환경이 변화하지 않으므로 개발 환경 제어가 쉬움
+
+docker의 이미지를 실행하고, localhost로 접속하라고 하여 해당 localhost와 port로 접속을 시도하면 접속이 실패하는 경우가 있을 것
+
+```
+docker exec -it {실행중인 컨테이너 이름} /bin/bash
+```
+를 실행하고 나서 바로 변경된 터미널에
+```
+sudo apt update
+```
+
+그리고 실행중인 container에 modular와 mojo를 설치할 것!
+
+mojo 설치까지 종료되면 해당 내용을 다시 image로 복사해둘 것
+```
+docker commit {mojo가 설치된 container 이름} {container id}
+```
+
+```
+docker run -it -p 8888:8888 -v ${pwd}:/workspace --name mojo1 {실행할 image 이름}
+```
