@@ -78,3 +78,30 @@ Integer, String, Boolean
 vector를 처리할 때 MLIR을 도입하여, cpu의 thread, gpu의 cuda, 등의 방식으로 빠르게 처리
 
 ## Ownership, Borrow 확인
+rust와 비슷하게 ownership, borrow를 확인하여 memory 문제(누수 등)를 방지
+
+## 사용자 지정 메모리 관리
+사용자가 메모리를 관리할 수도 있음
+사용방법이 매우 복잡하지 않다는 특징도 가짐
+
+## Zero-Cost Abstractions
+struct에 특정 타입의 변수에 값을 지정하기!
+를 처리하면 메모리에 걸리는 과부하를 막을 수 있음
+
+## Integrated Auto-tuning
+autotune이라는 함수가 있어서, 
+최적의 값을 찾아줌...
+이 함수, 혹은 특징은 프로그래밍 프로세스를 간단히 만들고, 코드의 실행 속도를 빠르게 해줌
+
+# Mojo는 Python의 superset으로 등장한 프로그램 언어
+python의 특징을 계승하기 때문에 기본적인 프로그래밍 로직이 간단한 편
+정확히는 python++의 특성을 직접적으로 계승
+
+## Mojo는 소스코드를 LLVM(컴파일러 디자인 프레임워크)에서 MLIR로 실행
+CPU 연산을 직접적으로 바로 사용함
+system programming, metaprogramming을 지원
+
+## MLIR
+재사용가능하고, 확장 가능한 컴파일러 기본 구조
+
+그외의 내부 구조들은 mojo의 홈페이지에서 확인할 것
