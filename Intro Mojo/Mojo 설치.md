@@ -25,3 +25,34 @@ Windows Subsystem for Linux를 활성화 > 재부팅
 
 ubuntu를 다시 실행하면
 ubuntu에서 사용할 사용자 이름과 비밀번호를 지정하게 될 것
+
+mojo를 설치하기전에 modular라는 것을 먼저 설치할 것
+
+modular의 하나로 mojo가 있음
+
+# mojo 사용방식
+터미널에 mojo를 입력하면 python처럼 터미널에서 mojo를 줄 단위로 실행할 수 있음
+
+## mojo 확장
+python extension, jupyter notebook extension 
+visual studio code에서 mojo extension, python extension, jupyternotebook extension
+설치할 것
+
+## WSL 실행시 error
+WSL disto is running with wsl1이라는 에러가 발생하며 실행이 되지 않을 경우
+visual studio의 설정으로 들어가서
+remote로 검색하기
+notebook experimental remote save, remote tunnels access prevent sleep
+등의 내역 모두 활성화
+
+settings.json 편집을 누르고
+"remote.WSL.fileWatcher.polling":true,
+"remote.WSL.debug":true,
+"remote.WSL.fileWatcher.pollingInterval":10000,
+의 내용을 추가하고 저장하기
+
+## mojo의 기본 파일
+~.mojo의 확장명을 갖고 있음
+fn 은 함수를 선언할 때의 키워드
+
+# mojo를 ubuntu, mac에 설치
