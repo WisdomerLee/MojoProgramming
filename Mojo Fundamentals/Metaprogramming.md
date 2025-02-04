@@ -171,3 +171,52 @@ parameter들은 compile되는 시점에서 결정되는 것들이기 때문에..
 
 ### Parameterized SIMD Type
 
+```mojo
+struct SIMD[type: DType, size: Int]:
+  var value: ... # 몇 MLIR 값을 여기에 넣을 것
+
+  # SIMD를 숫자들로부터 만들기
+  fn __init__(inout self, *elems: SIMD[type, 1]): ...
+
+  # 같은 값들로 SIMD 채우기
+  @staticmethod
+  fn splat(x: SIMD[type, 1]) -> SIMD[type, size]: ...
+
+  # SIMD의 요소들을 다른 type으로 만들기
+  fn cast[target: DType](self) -> SIMD[target, size]: ...
+
+  # 일반 연산자들의 동작 기능 지원
+  fn __add__(self, rhs: Self) -> Self: ...
+
+```
+
+```mojo
+# 4개의 float으로 된 vector 생성
+let small_vec = SIMD[DType.float32, 4](1.0, 2.0, 3.0, 4.0)
+
+# 1.0을 갖고 있는 float16타입의 vector 생성
+let big_vec = SIMD[DType.float16, 32].splat(1.0)
+
+# float32타입의 요소 만들기
+let bigger_vec = (big_vec+big_vec).cast[DType.float32]()
+
+#
+let bigger_vec2 : SIMD[DType.float32, 32] = bigger_vec
+
+
+```
+SIMD 데이터 꼴은 숫자, 등의 데이터 타입과 그 vector의 크기를 변수로 받음
+
+### Parametric Algorithm
+
+```mojo
+from math import sqrt
+
+fn rsqrt[dt: DType, width: Int](x: SIMD[dt, width]) -> SIMD[dt, width]:
+  return 1 / sqrt(x)
+
+print(rsqrt[DType.float16, 4](42))
+
+```
+위에서는 파라미터로 데이터 타입도 받아서 데이터 타입에 맞는 형태로 계산을 실행하고 그 값을 돌려주도록 설정되어 있음
+
