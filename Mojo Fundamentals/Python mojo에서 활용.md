@@ -39,3 +39,136 @@ import_module() 함수는 예외를 발생시킬 수 있습니다(예: 모듈이
 참고: Mojo는 런타임에 Python 인터프리터와 Python 모듈을 로드하므로 Mojo 프로그램을 실행할 때마다 호환되는 Python 인터프리터에 액세스하고 가져온 Python 모듈을 찾을 수 있어야 합니다.
 자세한 내용은 Python 환경 섹션을 참조하세요.
 
+## 사용자가 임의로 만든 python module 불러오기
+
+```python
+# mypython.py
+import numpy as np
+ 
+def gen_random_values(size, base):
+    # Generate a size x size array of random numbers between base and base+1
+    random_array = np.random.rand(size, size)
+    return random_array + base
+```
+위와 같은 mypython.py이라는 파일에 위와 같은 내용을 적용한 모듈을 하나 만들고
+그 모듈을 mojo에서 불러오기로 해보기
+
+```mojo
+# main.mojo
+from python import Python
+ 
+fn main() raises:
+    Python.add_to_path("path/to/module")
+    var mypython = Python.import_module("mypython")
+ 
+    var values = mypython.gen_random_values(2, 3)
+    print(values)
+```
+add_to_path라는 함수는 절대경로, 상대경로 모두 다 동작함. 
+
+## Python에서 mojo함수를 호출하기
+
+python에서 mojo를 호출하는 것은 제한사항이 존재함
+UI 이벤트 같은 경우. main event loop를 이용하여 존재하는
+mojo callback을 python에 전달할 수 없으므로... 위와 같은 경우엔 활용할 수 없음
+
+```python
+# myapp.py
+import tkinter as tk
+ 
+class App:
+    def __init__(self):
+        self._root = tk.Tk()
+        self.clicked = False
+ 
+    def click(self):
+        self.clicked = True
+ 
+    def create_button(self, button_text: str):
+        button = tk.Button(
+            master=self._root,
+            text=button_text,
+            command=self.click
+        )
+        button.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+ 
+    def create(self, res: str):
+        self._root.geometry(res)
+        self.create_button("Hello Mojo!")
+ 
+    def update(self):
+        self._root.update()
+```
+위의 파이썬 모듈을...
+
+```mojo
+from python import Python
+ 
+fn button_clicked():
+    print("Hi from a Mojo🔥 function!")
+ 
+fn main():
+    Python.add_to_path(".")
+    var app = Python.import_module("myapp").App()
+    app.create("800x600")
+ 
+    while True:
+        app.update()
+        if app.clicked:
+            button_clicked()
+            app.clicked = False
+```
+위와 같이 호출할 수도 있음
+python 모듈의 Tkinter 의 mainloop() 함수를 호출하는 것 대신, update()메소드를 loop에서 호출하여 clicked 특성을 확인하는 형태로 변형됨을 확인할 수 있음
+
+## Python 개발 환경
+Mojo는 python의 개발 환경에 의존하는 부분이 있음
+
+```python
+import os
+import subprocess
+ 
+FIND_LIBPYTHON = """
+import os
+import sys
+from pathlib import Path
+from sysconfig import get_config_var
+ext = "dll" if os.name == "nt" else "dylib" if sys.platform == "darwin" else "so"
+binary = f"libpython{get_config_var('py_version_short')}.{ext}"
+for folder in [Path(get_config_var(p)) for p in ["LIBPL", "LIBDIR"]]:
+    libpython_path = folder / binary
+    if libpython_path.is_file():
+        print(libpython_path.resolve())
+        exit(0)
+exit(1)
+"""
+FIND_PYTHON_VER = "import sysconfig; print(sysconfig.get_python_version())"
+ 
+exe_names = ["python3", "python"] + [f"python3.{i}" for i in range(8, 13)]
+seen = []
+executables = []
+ 
+print("Mojo will attempt to use the first Python executable from the top:\n")
+print("vers | compat | path")
+for path in os.environ["PATH"].split(":"):
+    for exe in exe_names:
+        full_path = os.path.join(path, exe)
+        if os.path.exists(full_path):
+            pyver = subprocess.check_output([full_path, "-c", FIND_PYTHON_VER], text=True).strip()
+            res = subprocess.run([full_path, "-c", FIND_LIBPYTHON], text=True, capture_output=True)
+            libpython = res.stdout.strip()
+            if res.returncode != 0:
+                print(f"{pyver:<7} no      {full_path}")
+            elif libpython not in seen:
+                print(f"{pyver:<7} yes     {full_path}")
+                seen.append(libpython)
+                executables.append(full_path)
+ 
+if not executables:
+    print("No compatible Python environments found")
+else:
+    print("\nCreate and activate a virtual environment to use a different Python version:")
+    print(f"    {executables[-1]} -m venv .venv")
+    print("    source .venv/bin/activate")
+```
+파이썬의 개발환경은 위의 코드를 실행하여 확인할 수 있음
