@@ -54,3 +54,49 @@ def python_type_function(a_int, b_float, c_bool, d_string, e_list, f_tuple):
   print(type(f_tuple))
 
 ```
+
+primitive types - built in type
+사용자 지정 data type 
+
+value를 넘겨주는 방식을
+
+mojo에서 dict() 함수로 쓰기
+
+```mojo
+from python import Python
+from python.object import PythonObject
+
+var dictionary = Python.dict()
+dictionary["Car"] = "BMW"
+dictionary["Bike"] = "Harley Davidson"
+
+print(dictionary.keys())
+print(dictionary.values())
+```
+
+# Pandas의 데이터 분석을 들여오기
+
+```mojo
+from python import Python
+let pd = Python.import_module("pandas")
+
+df = pd.read_csv("/home/~.csv")
+
+print(df)
+print(df.info())
+```
+물론 위의 코드를 쓸 수 있으려면 python 환경에서 pip install pandas를 이용해 해당 패키지가 깔려있어야 함
+
+# Matplotlib의 그래프 그리기 기능을 불러오기
+
+```mojo
+from python import Python
+
+let plt = Python.import_module("matplotlib.pyplot")
+x = ["A", "B", "C", "D"]
+y = [10, 20, 30, 40]
+
+plt.bar(x,y)
+plt.show()
+```
+pyplot으로 그래프를 그리려면 최소한 x, y의 두 개에 해당되는 데이터 묶음들이 필요함
